@@ -1,9 +1,0 @@
-
-171.74.200.217 - 19ports
-Error connecting to Port 397
-Error connecting to Port 20
-
-10.10.16.18 - 4ports
-Error connecting to Port 8470
-Error connecting to Port 8471
-Error connecting to Port 8472
