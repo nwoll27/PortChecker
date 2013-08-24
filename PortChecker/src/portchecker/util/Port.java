@@ -14,11 +14,30 @@ public class Port {
 		this.isOpen = isOpen;
 	}
 	
-	public String toString(){
-		String status = "CLOSED";
+	public void openPort(){
+		isOpen = true;
+	}
+	
+	public void closePort(){
+		isOpen = false;
+	}
+	
+	public int getPort(){
+		return port;
+	}
+	
+	public String getStatus(){
+		String result;
 		if(isOpen){
-			status = "OPEN";
+			result = "OPEN";
+		} else {
+			result = "CLOSED";
 		}
-		return "Port " + port + " is " + status;
+		return result;
+	}
+	
+	public String toString(){
+		
+		return "Port " + getPort() + " is " + getStatus();
 	}
 }
