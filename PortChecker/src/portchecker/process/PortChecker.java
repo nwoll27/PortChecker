@@ -25,23 +25,6 @@ public class PortChecker {
 	private File outputFile;
 	private Logger logger;
 
-	/*
-	 * int startPortRange = 0; int stopPortRange = 0; boolean hasArgs = false;
-	 * String defaultIP = "171.74.200.217";
-	 * 
-	 * if (args.length >= 2) { hasArgs = true; startPortRange =
-	 * Integer.parseInt(args[0]); stopPortRange = Integer.parseInt(args[1]); if
-	 * (args.length > 2) { defaultIP = args[2]; } }
-	 * 
-	 * if (hasArgs) { ConnectFromArgs(startPortRange, stopPortRange, defaultIP);
-	 * } else { File inputFile = new File("ports.csv"); File outputFile = new
-	 * File("port_log.txt"); Logger logger = new Logger(outputFile);
-	 * ArrayList2D<String> portList = new ArrayList2D<String>();
-	 * 
-	 * CacheCSV(portList, inputFile); ProcessPortList(portList, logger);
-	 * logger.closeWriter(); }
-	 */
-
 	public void checkPorts(String[] args) {
 		portTable = new Hashtable<String, List<Port>>();
 		inputFile = new File("ports.csv");
@@ -55,9 +38,7 @@ public class PortChecker {
 		}
 
 		processPortTable(portTable);
-
-		buildReport();
-
+		
 		logger.closeWriter();
 	}
 
