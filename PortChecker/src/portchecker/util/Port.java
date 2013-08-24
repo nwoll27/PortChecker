@@ -1,3 +1,4 @@
+package portchecker.util;
 
 public class Port {
 	private int port;

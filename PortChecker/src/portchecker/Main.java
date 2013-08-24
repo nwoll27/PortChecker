@@ -1,11 +1,16 @@
+package portchecker;
+
 import java.net.*;
 import java.io.*;
 import java.util.*;
 
+import portchecker.process.*;
+import portchecker.util.*;
+
 public class Main {
 
 	public static void main(String[] args) {
-		int startPortRange = 0;
+		/*int startPortRange = 0;
 		int stopPortRange = 0;
 		boolean hasArgs = false;
 		String defaultIP = "171.74.200.217";
@@ -30,13 +35,19 @@ public class Main {
 			CacheCSV(portList, inputFile);
 			ProcessPortList(portList, logger);
 			logger.closeWriter();
-		}
+		}*/
+		
+		PortChecker process = new PortChecker();
+		
+		process.checkPorts(args);
+		
 
 	}
 
+	
 	/**
-	 * Reads the contents of ports.csv into a multidimensional ArrayList
-	 * portList. Line contents are read into separate rows in the ArrayList.
+	 * Reads the contents of ports.csv into a Hashtable<String, Port>
+	 * portList. Each IP address in the file is a hashtable key.
 	 * 
 	 * @param portList
 	 */

@@ -1,3 +1,5 @@
+package portchecker.util;
+
 import java.io.*;
 
 public class Logger {
