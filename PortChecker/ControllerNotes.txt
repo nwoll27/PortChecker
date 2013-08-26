@@ -1,0 +1,36 @@
+Notes for ThreadController.java
+
+Variables:
+Hashtable<IPString, List<Port>> portTable //Passed by reference
+Hashtable<IPString, List<int[]>> portChunks; //Created using IP's from portTable
+int chunkLength;
+int maxThreads;
+
+Controller Process:
+-Accepts Hashtable<IPString, List<Port>>
+Sample values -
+	1.1.1.1, (20,21,22,80,3500,8080)
+	1.1.1.2, (35, 4500, 8080, 11000)
+
+-Counts values in each key and breaks down into "chunks" based on int chunkLength
+-These chunks are represented as an int[2] containing a start index and end index
+-The chunks are added to a List<int[]> and the list is placed into a new 
+Hashtable<IPString, List<int[]>>, which mimics the Keys of the portTable above.
+-The controller then creates threads up to the max thread count and assigns each one
+an (int[])chunk and the current IP, which the thread will process. 
+	-None of the chunks overlap, so they can access the same reference without conflict
+-When a thread is finished, it will set a flag allowing the controller, which is
+looping through the thread list, to assign it the next chunk
+-When no chunks are remaining to be assigned, the controller loops through the
+active threads and destroys them as they become idle. When all threads are destroyed
+the controller returns process flow to the application.
+
+Simple thread process pseudocode
+Thread(String currentIP, int[] chunk){
+	int startIndex = chunk[0];
+	int endIndex = chunk[1]
+	for(int i = startIndex; i <= endIndex; i++){
+		if(testForFailedConnection())
+			portTable.get(currentIP).get(i).closePort();
+	}
+}
