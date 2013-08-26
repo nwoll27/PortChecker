@@ -34,3 +34,6 @@ Thread(String currentIP, int[] chunk){
 			portTable.get(currentIP).get(i).closePort();
 	}
 }
+
+check this repo for model:
+https://github.com/sblackmore/MultiThread/blob/master/src/RssReader.java
