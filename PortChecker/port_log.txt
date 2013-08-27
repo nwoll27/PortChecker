@@ -1,48 +1,20 @@
 
-10.40.37.128 - 38 ports
-Error connecting to Port 1
-Error connecting to Port 2
-Error connecting to Port 3
-Error connecting to Port 4
-Error connecting to Port 5
-Error connecting to Port 6
-Error connecting to Port 7
-Error connecting to Port 8
-Error connecting to Port 9
-Error connecting to Port 10
-Error connecting to Port 11
-Error connecting to Port 12
-Error connecting to Port 13
-Error connecting to Port 14
-Error connecting to Port 15
-Error connecting to Port 16
-Error connecting to Port 17
-Error connecting to Port 18
-Error connecting to Port 19
+171.74.200.223 - 33 ports
 Error connecting to Port 20
-Error connecting to Port 449
-Error connecting to Port 8470
-Error connecting to Port 8471
-Error connecting to Port 8472
-Error connecting to Port 8473
-Error connecting to Port 8475
-Error connecting to Port 8476
-Error connecting to Port 23
-Error connecting to Port 8477
-Error connecting to Port 8478
-Error connecting to Port 8479
-Error connecting to Port 397
-Error connecting to Port 20
-Error connecting to Port 21
-Error connecting to Port 545
-Error connecting to Port 446
-Error connecting to Port 2001
-Error connecting to Port 5555
-
-10.40.37.133 - 6 ports
-Error connecting to Port 449
-Error connecting to Port 500
-Error connecting to Port 600
+Error connecting to Port 60
 Error connecting to Port 80
-Error connecting to Port 8000
-Error connecting to Port 3500
+Error connecting to Port 89
+Error connecting to Port 138
+Error connecting to Port 452
+Error connecting to Port 512
+Error connecting to Port 1289
+Error connecting to Port 1415
+Error connecting to Port 1416
+Error connecting to Port 1418
+Error connecting to Port 2010
+Error connecting to Port 2020
+Error connecting to Port 2809
+Error connecting to Port 3389
+Error connecting to Port 4809
+Error connecting to Port 5510
+Error connecting to Port 5566

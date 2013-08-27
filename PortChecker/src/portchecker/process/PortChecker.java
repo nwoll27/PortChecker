@@ -24,6 +24,7 @@ public class PortChecker {
 	private File inputFile;
 	private File outputFile;
 	private Logger logger;
+	private int socketTimeout = 200;
 
 	/*
 	 * int startPortRange = 0; int stopPortRange = 0; boolean hasArgs = false;
@@ -43,21 +44,28 @@ public class PortChecker {
 	 */
 
 	public void checkPorts(String[] args) {
+		//Local Variables
 		portTable = new Hashtable<String, List<Port>>();
 		inputFile = new File("ports.csv");
 		outputFile = new File("port_log.txt");
 		logger = new Logger(outputFile);
 		ThreadController threadController = new ThreadController();
-
+		
+		//Statements
 		if (args.length >= 2) {
 			portTable = cacheFromArgs(args);
 		} else {
 			cacheCSV(portTable);
 		}
-
-		threadController.processPortTable(portTable);
-		processPortTable(portTable);
-
+		
+		// TODO Change the execution of process over to ThreadController
+		try{
+			//threadController.processPortTable(portTable);
+			processPortTable(portTable);
+		} catch (Exception e){
+			e.printStackTrace();
+		}		
+		
 		buildReport();
 
 		logger.closeWriter();
@@ -137,10 +145,12 @@ public class PortChecker {
 	 * @param token
 	 */
 	public void addPortsFromToken(List<Port> portList, String token) {
+		//Local Variables
 		String[] rangeValues;
 		int rangeStart;
 		int rangeEnd;
-
+		
+		//Statements
 		if (token.contains("-")) {
 			rangeValues = token.split("-");
 			rangeStart = Integer.parseInt(rangeValues[0]);
@@ -186,7 +196,7 @@ public class PortChecker {
 				try {
 					Socket serverSock = new Socket();
 					serverSock.connect(new InetSocketAddress(currentIP,
-							currentPort.getPort()), 200);
+							currentPort.getPort()), socketTimeout);
 
 					System.out.println("Connected to Port: "
 							+ currentPort.getPort());
