@@ -47,6 +47,7 @@ public class PortChecker {
 		inputFile = new File("ports.csv");
 		outputFile = new File("port_log.txt");
 		logger = new Logger(outputFile);
+		ThreadController threadController = new ThreadController();
 
 		if (args.length >= 2) {
 			portTable = cacheFromArgs(args);
@@ -54,6 +55,7 @@ public class PortChecker {
 			cacheCSV(portTable);
 		}
 
+		threadController.processPortTable(portTable);
 		processPortTable(portTable);
 
 		buildReport();
