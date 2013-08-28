@@ -1,9 +1,12 @@
 package portchecker.process;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Hashtable;
 
 import portchecker.util.*;
 
@@ -21,7 +24,7 @@ public class ThreadController {
 	//Constructors
 	public ThreadController(){
 		chunkSize = 15;
-		maxThreads = 4;
+		maxThreads = 8;
 	}
 	
 	public ThreadController(int chunkSize, int maxThreads){
@@ -30,38 +33,43 @@ public class ThreadController {
 	}
 	
 	//Methods
-	public void processPortTable(Hashtable<String, List<Port>> portTable) throws Exception{
+	public void processPortTable(Hashtable<String, List<Port>> portTable, Logger logger) throws Exception{
 		//Local Variables
-		Hashtable<String, List<int[]>> chunkTable;
+		Map<String, List<int[]>> chunkTable;
 		List<WorkThread> threadList;
 		int currentChunkIndex;
-		Enumeration<String> ipAddresses;
+		Iterator<String> ipAddresses;
+		Iterator<WorkThread> threads;
 		String currentIP;
-				
+		
 		//Statements
 		threadList = new ArrayList<WorkThread>();
 		
 		chunkTable = buildChunkTable(portTable);
 		
 		for(int i = 0; i < maxThreads; i++){
-			threadList.add(new WorkThread());
+			threadList.add(new WorkThread(portTable, logger));
 		}
 		
 		currentChunkIndex = 0;
-		ipAddresses = chunkTable.keys();
-		currentIP = ipAddresses.nextElement();
+		ipAddresses = chunkTable.keySet().iterator();
+		currentIP = ipAddresses.next();
 		while(!threadList.isEmpty()){
-			for(WorkThread thread : threadList) {
+			threads = threadList.iterator();
+			while(threads.hasNext()){
+				WorkThread thread = threads.next();
 				if(thread.isIdle){
-					if(currentChunkIndex >= chunkTable.get(currentIP).size() && ipAddresses.hasMoreElements()){
-						currentIP = ipAddresses.nextElement();
+					if(currentChunkIndex >= chunkTable.get(currentIP).size() && ipAddresses.hasNext()){
+						currentIP = ipAddresses.next();
 						currentChunkIndex = 0;
 					} 
 					if (currentChunkIndex < chunkTable.get(currentIP).size()){
 						thread.assignTask(currentIP, chunkTable.get(currentIP).get(currentChunkIndex));
 						currentChunkIndex++; 						
-					} else if(currentChunkIndex >= chunkTable.get(currentIP).size() && !ipAddresses.hasMoreElements()){
+					} else if(currentChunkIndex >= chunkTable.get(currentIP).size() && !ipAddresses.hasNext()){
+						thread.finishWork();
 						threadList.remove(thread); //Remove current thread if no work is left
+						threads = threadList.iterator();
 					} else {
 						throw new Exception("ERROR! Thread was handled improperly.");
 					}
@@ -72,18 +80,14 @@ public class ThreadController {
 		System.out.println("Test");
 	}
 	
-	private Hashtable<String, List<int[]>> buildChunkTable(Hashtable<String, List<Port>> portTable){
+	private Hashtable<String, List<int[]>> buildChunkTable(Map<String, List<Port>> portTable){
 		//Local Variables
 		Hashtable<String, List<int[]>> chunkTable;
-		Enumeration<String> ipAddresses;
-		String currentIP;
 		
 		//Statements
 		chunkTable = new Hashtable<String, List<int[]>>();
-		ipAddresses = portTable.keys();
-		
-		while(ipAddresses.hasMoreElements()){
-			currentIP = ipAddresses.nextElement();
+				
+		for(String currentIP : portTable.keySet()){
 			chunkTable.put(currentIP, calculateChunks(portTable.get(currentIP)));
 		}
 		
@@ -114,25 +118,75 @@ public class ThreadController {
 	}
 	
 	private static class WorkThread implements Runnable {
+		Map<String, List<Port>> portTable;
 		private boolean isIdle;
 		private boolean isFinished;
 		private int startIndex;
 		private int endIndex;
 		private String ipAddress;
+		private int socketTimeout = 200;
+		Logger logger;
+		Thread t;
 		
-		private WorkThread(){
+		private WorkThread(Map<String, List<Port>> portTable, Logger logger){
 			isIdle = true;
 			isFinished = false;
+			this.portTable = portTable;
+			this.logger = logger;
+			t = new Thread(this);
+			t.start();
 		}
 		
 		public void assignTask(String ipAddress, int[] chunk){
 			this.ipAddress = ipAddress;
 			startIndex = chunk[0];
-			endIndex = chunk[1];			
+			endIndex = chunk[1];
+			resumeWork();			
+		}
+		
+		public void finishWork(){
+			ipAddress = null;
+			isFinished = true;
+			resumeWork();
+		}
+		
+		synchronized void resumeWork(){
+			isIdle = false;
+			notify();
 		}
 		
 		public void run() {
-			// TODO Build workThread class and process
+			try {
+				while(!isFinished){
+					synchronized(this) {
+						while(isIdle) {
+							wait();
+						}
+					}
+					if(!isFinished){						
+						for (int i = startIndex; i < endIndex; i++) {
+							System.out.println("\nAttempting connection to Port "
+									+ ipAddress + ":" + portTable.get(ipAddress).get(i).getPort());
+							try {
+								Socket serverSock = new Socket();
+								serverSock.connect(new InetSocketAddress(ipAddress,
+										portTable.get(ipAddress).get(i).getPort()), socketTimeout);
+	
+								System.out.println("Connected to Port: "
+										+ portTable.get(ipAddress).get(i).getPort());
+	
+								serverSock.close();
+							} catch (Exception e) {
+								portTable.get(ipAddress).get(i).closePort();
+							}
+						}
+						
+						isIdle = true;
+					}
+				}
+			} catch (InterruptedException e) {
+				System.out.println("Thread interrupted");
+			}
 			
 		}
 		

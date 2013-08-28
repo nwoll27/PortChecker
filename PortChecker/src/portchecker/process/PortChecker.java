@@ -1,13 +1,15 @@
 package portchecker.process;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.lang.System;
 
 import portchecker.util.*;
 
@@ -25,24 +27,7 @@ public class PortChecker {
 	private File outputFile;
 	private Logger logger;
 	private int socketTimeout = 200;
-
-	/*
-	 * int startPortRange = 0; int stopPortRange = 0; boolean hasArgs = false;
-	 * String defaultIP = "171.74.200.217";
-	 * 
-	 * if (args.length >= 2) { hasArgs = true; startPortRange =
-	 * Integer.parseInt(args[0]); stopPortRange = Integer.parseInt(args[1]); if
-	 * (args.length > 2) { defaultIP = args[2]; } }
-	 * 
-	 * if (hasArgs) { ConnectFromArgs(startPortRange, stopPortRange, defaultIP);
-	 * } else { File inputFile = new File("ports.csv"); File outputFile = new
-	 * File("port_log.txt"); Logger logger = new Logger(outputFile);
-	 * ArrayList2D<String> portList = new ArrayList2D<String>();
-	 * 
-	 * CacheCSV(portList, inputFile); ProcessPortList(portList, logger);
-	 * logger.closeWriter(); }
-	 */
-
+	
 	public void checkPorts(String[] args) {
 		//Local Variables
 		portTable = new Hashtable<String, List<Port>>();
@@ -50,22 +35,30 @@ public class PortChecker {
 		outputFile = new File("port_log.txt");
 		logger = new Logger(outputFile);
 		ThreadController threadController = new ThreadController();
-		
+		long startTime;
+		long elapsedTime;
+
 		//Statements
+		startTime = System.nanoTime();
 		if (args.length >= 2) {
 			portTable = cacheFromArgs(args);
 		} else {
 			cacheCSV(portTable);
 		}
+		elapsedTime = System.nanoTime();
 		
-		// TODO Change the execution of process over to ThreadController
+		logger.println("Caching completed in " 
+				+ TimeUnit.NANOSECONDS.toMillis(elapsedTime-startTime) + " milliseconds");
+		
+		startTime = System.nanoTime();
 		try{
-			//threadController.processPortTable(portTable);
-			processPortTable(portTable);
+			threadController.processPortTable(portTable, logger);			
 		} catch (Exception e){
 			e.printStackTrace();
 		}		
-		
+		elapsedTime = System.nanoTime();
+		logger.println("Process completed in " 
+				+ TimeUnit.NANOSECONDS.toSeconds(elapsedTime-startTime) + " seconds");
 		buildReport();
 
 		logger.closeWriter();
@@ -77,7 +70,7 @@ public class PortChecker {
 	 * 
 	 * @param portTable
 	 */
-	public void cacheCSV(Hashtable<String, List<Port>> portTable) {
+	public void cacheCSV(Map<String, List<Port>> portTable) {
 		// Local Variables
 		String currentLine = null;
 		String currentIP = null;
@@ -85,18 +78,23 @@ public class PortChecker {
 
 		// Statements
 		try {
+			logger.println("Caching ports from file...");
+			
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-
+			
 			while ((currentLine = br.readLine()) != null) {
-				currentPorts = new ArrayList<Port>();
-				currentLine = currentLine.replaceAll("\"", "");
-				StringTokenizer st = new StringTokenizer(currentLine, ",");
-				if (st.hasMoreTokens())
-					currentIP = st.nextToken();
-				while (st.hasMoreTokens()) {
-					addPortsFromToken(currentPorts, st.nextToken());
-				}
-				portTable.put(currentIP, currentPorts);
+				if(currentLine.contains(",")){
+					currentPorts = new ArrayList<Port>();
+					currentLine = currentLine.replaceAll("\"", "");
+					StringTokenizer st = new StringTokenizer(currentLine, ",");
+					if (st.hasMoreTokens())
+						currentIP = st.nextToken();
+					while (st.hasMoreTokens()) {
+						addPortsFromToken(currentPorts, st.nextToken());
+					}
+					portTable.put(currentIP, currentPorts);
+					logger.println(currentIP + " - " + currentPorts.size() + " ports");
+				}				
 			}
 			br.close();
 			System.out.println(portTable.toString());
@@ -166,27 +164,20 @@ public class PortChecker {
 	}
 
 	/**
-	 * Processes the contents of the cached portTable. Each entry in the table
+	 * (DEPRECATED) Processes the contents of the cached portTable. Each entry in the table
 	 * contains an IP address and the corresponding ports to be connected to. A
 	 * connection is established to each port in turn, and failed connections
 	 * are logged to port_log.txt via logger.
 	 * 
 	 * @param portTable
 	 */
-	// TODO Build a Controller to handle this process and make this
-	// multithreaded. The controller can assign work as threads finish previous
-	// assignmens, to account for varying completion times.
-	public void processPortTable(Hashtable<String, List<Port>> portTable) {
+	@Deprecated
+	public void processPortTable(Map<String, List<Port>> portTable) {
 		// Local Variables
-		Enumeration<String> ipAddresses;
-		String currentIP;
 		List<Port> currentPorts;
 		
 		// Statements
-		ipAddresses = portTable.keys();
-
-		while (ipAddresses.hasMoreElements()) {
-			currentIP = ipAddresses.nextElement();
+		for(String currentIP : portTable.keySet()) {
 			currentPorts = portTable.get(currentIP);
 			logger.println("\n" + currentIP + " - " + currentPorts.size()
 					+ " ports");

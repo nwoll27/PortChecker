@@ -1,20 +1,6 @@
-
-171.74.200.223 - 33 ports
-Error connecting to Port 20
-Error connecting to Port 60
-Error connecting to Port 80
-Error connecting to Port 89
-Error connecting to Port 138
-Error connecting to Port 452
-Error connecting to Port 512
-Error connecting to Port 1289
-Error connecting to Port 1415
-Error connecting to Port 1416
-Error connecting to Port 1418
-Error connecting to Port 2010
-Error connecting to Port 2020
-Error connecting to Port 2809
-Error connecting to Port 3389
-Error connecting to Port 4809
-Error connecting to Port 5510
-Error connecting to Port 5566
+Caching ports from file...
+107.4.184.135 - 4 ports
+171.74.200.223 - 6 ports
+10.10.16.18 - 100 ports
+Caching completed in 4 milliseconds
+Process completed in 3 seconds
