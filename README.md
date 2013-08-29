@@ -3,11 +3,9 @@ PortChecker
 
 A simple multi-threaded TCP Port Checker utility. Accepts a .csv containing a list of IP's and TCP ports and attempts to open a new socket in each
 
-Releases:
+Release 0.5:
 <ul>
-<li>Branch 0.1 is the first working version; it takes the input from the CSV and outputs everything to the console and logfile.</li>
 <li>Branch 0.5 contains the ThreadController and multi-threaded processing of ports.</li>
-<li>Branch 1.0 will be the "release candidate" and will contain the completed ReportBuilder and condensed results</li>
 </ul>
 
 TODO: This project has been refactored from its original build. A list of some pending changes:
