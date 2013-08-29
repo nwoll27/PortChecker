@@ -27,9 +27,9 @@ public class PortChecker {
 	private File outputFile;
 	private Logger logger;
 	private int socketTimeout = 200;
-	
+
 	public void checkPorts(String[] args) {
-		//Local Variables
+		// Local Variables
 		portTable = new Hashtable<String, List<Port>>();
 		inputFile = new File("ports.csv");
 		outputFile = new File("port_log.txt");
@@ -38,7 +38,7 @@ public class PortChecker {
 		long startTime;
 		long elapsedTime;
 
-		//Statements
+		// Statements
 		startTime = System.nanoTime();
 		if (args.length >= 2) {
 			portTable = cacheFromArgs(args);
@@ -46,19 +46,21 @@ public class PortChecker {
 			cacheCSV(portTable);
 		}
 		elapsedTime = System.nanoTime();
-		
-		logger.println("Caching completed in " 
-				+ TimeUnit.NANOSECONDS.toMillis(elapsedTime-startTime) + " milliseconds");
-		
+
+		logger.println("Caching completed in "
+				+ TimeUnit.NANOSECONDS.toMillis(elapsedTime - startTime)
+				+ " milliseconds");
+
 		startTime = System.nanoTime();
-		try{
-			threadController.processPortTable(portTable, logger);			
-		} catch (Exception e){
+		try {
+			threadController.processPortTable(portTable);
+		} catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 		elapsedTime = System.nanoTime();
-		logger.println("Process completed in " 
-				+ TimeUnit.NANOSECONDS.toSeconds(elapsedTime-startTime) + " seconds");
+		logger.println("Process completed in "
+				+ TimeUnit.NANOSECONDS.toSeconds(elapsedTime - startTime)
+				+ " seconds");
 		buildReport();
 
 		logger.closeWriter();
@@ -79,11 +81,11 @@ public class PortChecker {
 		// Statements
 		try {
 			logger.println("Caching ports from file...");
-			
+
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-			
+
 			while ((currentLine = br.readLine()) != null) {
-				if(currentLine.contains(",")){
+				if (currentLine.contains(",")) {
 					currentPorts = new ArrayList<Port>();
 					currentLine = currentLine.replaceAll("\"", "");
 					StringTokenizer st = new StringTokenizer(currentLine, ",");
@@ -93,8 +95,9 @@ public class PortChecker {
 						addPortsFromToken(currentPorts, st.nextToken());
 					}
 					portTable.put(currentIP, currentPorts);
-					logger.println(currentIP + " - " + currentPorts.size() + " ports");
-				}				
+					logger.println(currentIP + " - " + currentPorts.size()
+							+ " ports");
+				}
 			}
 			br.close();
 			System.out.println(portTable.toString());
@@ -119,7 +122,7 @@ public class PortChecker {
 	 * 
 	 * @param args
 	 */
-	//TODO Add support for command line arguments
+	// TODO Add support for command line arguments
 	public Hashtable<String, List<Port>> cacheFromArgs(String[] args) {
 		Hashtable<String, List<Port>> portTable = new Hashtable<String, List<Port>>();
 
@@ -143,12 +146,12 @@ public class PortChecker {
 	 * @param token
 	 */
 	public void addPortsFromToken(List<Port> portList, String token) {
-		//Local Variables
+		// Local Variables
 		String[] rangeValues;
 		int rangeStart;
 		int rangeEnd;
-		
-		//Statements
+
+		// Statements
 		if (token.contains("-")) {
 			rangeValues = token.split("-");
 			rangeStart = Integer.parseInt(rangeValues[0]);
@@ -164,10 +167,10 @@ public class PortChecker {
 	}
 
 	/**
-	 * (DEPRECATED) Processes the contents of the cached portTable. Each entry in the table
-	 * contains an IP address and the corresponding ports to be connected to. A
-	 * connection is established to each port in turn, and failed connections
-	 * are logged to port_log.txt via logger.
+	 * (DEPRECATED) Processes the contents of the cached portTable. Each entry
+	 * in the table contains an IP address and the corresponding ports to be
+	 * connected to. A connection is established to each port in turn, and
+	 * failed connections are logged to port_log.txt via logger.
 	 * 
 	 * @param portTable
 	 */
@@ -175,9 +178,9 @@ public class PortChecker {
 	public void processPortTable(Map<String, List<Port>> portTable) {
 		// Local Variables
 		List<Port> currentPorts;
-		
+
 		// Statements
-		for(String currentIP : portTable.keySet()) {
+		for (String currentIP : portTable.keySet()) {
 			currentPorts = portTable.get(currentIP);
 			logger.println("\n" + currentIP + " - " + currentPorts.size()
 					+ " ports");
