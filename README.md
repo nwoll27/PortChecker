@@ -14,7 +14,6 @@ TODO: This project has been refactored from its original build. A list of some p
 <ul>
 <li>More robust handling of input values (parsing of CSV? command line args)</li>
 <li>Processing and condensation of results to be more meaningful</li>
-<li>Creation of ReportBuilder code create a more readable (and more useful) report</li>
 </ul>
 
 Post Release: 
