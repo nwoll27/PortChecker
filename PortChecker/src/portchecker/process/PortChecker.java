@@ -43,11 +43,11 @@ public class PortChecker {
 		if (args.length >= 2) {
 			portTable = cacheFromArgs(args);
 		} else {
-			cacheCSV(portTable);
+			cacheCSV();
 		}
 		elapsedTime = System.nanoTime();
 
-		logger.println("Caching completed in "
+		logger.println("\nCaching completed in "
 				+ TimeUnit.NANOSECONDS.toMillis(elapsedTime - startTime)
 				+ " milliseconds");
 
@@ -72,7 +72,7 @@ public class PortChecker {
 	 * 
 	 * @param portTable
 	 */
-	public void cacheCSV(Map<String, List<Port>> portTable) {
+	public void cacheCSV() {
 		// Local Variables
 		String currentLine = null;
 		String currentIP = null;
@@ -80,7 +80,7 @@ public class PortChecker {
 
 		// Statements
 		try {
-			logger.println("Caching ports from file...");
+			logger.println("Caching ports from file...\n");
 
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 
@@ -165,6 +165,41 @@ public class PortChecker {
 			portList.add(new Port(i));
 		}
 	}
+	
+	/**
+	 * Builds a report into an output file from the results of the PortChecker. The
+	 * contents of portTable are iterated through and ports are used to build the
+	 * StringBuffers which are then fed to the logger. Results go to port_log.txt.
+	 */
+	// TODO: Condense results to ranges to improve readability.
+	// (Requires preprocessing of list to split by status and sort numerically)
+	public void buildReport() {
+		//Local Variables
+		StringBuffer openPortBuffer = new StringBuffer();
+		StringBuffer closedPortBuffer = new StringBuffer();		
+				
+		//Statements
+		openPortBuffer.append("\nThe following ports are OPEN:\n");
+		closedPortBuffer.append("\nThe following ports are CLOSED:\n");		
+		
+		for(String ipAddress : portTable.keySet()){
+			openPortBuffer.append(ipAddress + " - ");
+			closedPortBuffer.append(ipAddress + " - ");			
+			for(Port currentPort : portTable.get(ipAddress)){
+				if(currentPort.getStatus().equals("OPEN")){
+					openPortBuffer.append(currentPort.getPort() + ", ");
+				} else {
+					closedPortBuffer.append(currentPort.getPort() + ", ");
+				}
+			}
+			openPortBuffer.deleteCharAt(openPortBuffer.length()-2);			
+			openPortBuffer.append("\n");
+			closedPortBuffer.deleteCharAt(closedPortBuffer.length()-2);
+			closedPortBuffer.append("\n");	
+		}
+		logger.println(openPortBuffer.toString());
+		logger.println(closedPortBuffer.toString());
+	}
 
 	/**
 	 * (DEPRECATED) Processes the contents of the cached portTable. Each entry
@@ -205,12 +240,4 @@ public class PortChecker {
 			}
 		}
 	}
-
-	/**
-	 * Builds a report into an output file from the results of the PortChecker.
-	 */
-	public void buildReport() {
-
-	}
-
 }
