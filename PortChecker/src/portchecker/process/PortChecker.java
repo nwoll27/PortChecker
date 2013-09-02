@@ -26,8 +26,9 @@ public class PortChecker {
 	private File inputFile;
 	private File outputFile;
 	private Logger logger;
-	private int socketTimeout = 200;
+	@Deprecated private int socketTimeout = 200;
 
+	//TODO: Parse args for parameters (ip=x.x.x.x; ports=port,port,port-range,port; socketTimeout=200; etc)
 	public void checkPorts(String[] args) {
 		// Local Variables
 		portTable = new Hashtable<String, List<Port>>();
@@ -41,7 +42,7 @@ public class PortChecker {
 		// Statements
 		startTime = System.nanoTime();
 		if (args.length >= 2) {
-			portTable = cacheFromArgs(args);
+			cacheFromArgs(args);
 		} else {
 			cacheCSV();
 		}
@@ -61,6 +62,7 @@ public class PortChecker {
 		logger.println("Process completed in "
 				+ TimeUnit.NANOSECONDS.toSeconds(elapsedTime - startTime)
 				+ " seconds");
+		
 		buildReport();
 
 		logger.closeWriter();
@@ -122,18 +124,20 @@ public class PortChecker {
 	 * 
 	 * @param args
 	 */
-	// TODO Add support for command line arguments
-	public Hashtable<String, List<Port>> cacheFromArgs(String[] args) {
-		Hashtable<String, List<Port>> portTable = new Hashtable<String, List<Port>>();
+	public void cacheFromArgs(String[] args) {
+		// Local Variables
+		String ipAddress;
+		List<Port> portList = new ArrayList<Port>();
+		
+		// Statements
+		ipAddress = args[0];
+		for (int i = 1; i < args.length; i++) {
+			addPortsFromToken(portList, args[i]);
+		}
 
-		logger.println("WARNING: Command line args are not currently supported.");
-		logger.println("Please use the ports.csv file in the application directory.");
-		/*
-		 * if (args.length >= 2) { hasArgs = true; startPortRange =
-		 * Integer.parseInt(args[0]); stopPortRange = Integer.parseInt(args[1]);
-		 * if (args.length > 2) { defaultIP = args[2]; } }
-		 */
-		return portTable;
+		portTable.put(ipAddress, portList);
+
+		logger.println(ipAddress + " - " + portList.size() + " ports");
 	}
 
 	/**
@@ -165,37 +169,38 @@ public class PortChecker {
 			portList.add(new Port(i));
 		}
 	}
-	
+
 	/**
-	 * Builds a report into an output file from the results of the PortChecker. The
-	 * contents of portTable are iterated through and ports are used to build the
-	 * StringBuffers which are then fed to the logger. Results go to port_log.txt.
+	 * Builds a report into an output file from the results of the PortChecker.
+	 * The contents of portTable are iterated through and ports are used to
+	 * build the StringBuffers which are then fed to the logger. Results go to
+	 * port_log.txt.
 	 */
 	// TODO: Condense results to ranges to improve readability.
 	// (Requires preprocessing of list to split by status and sort numerically)
 	public void buildReport() {
-		//Local Variables
+		// Local Variables
 		StringBuffer openPortBuffer = new StringBuffer();
-		StringBuffer closedPortBuffer = new StringBuffer();		
-				
-		//Statements
+		StringBuffer closedPortBuffer = new StringBuffer();
+
+		// Statements
 		openPortBuffer.append("\nThe following ports are OPEN:\n");
-		closedPortBuffer.append("\nThe following ports are CLOSED:\n");		
-		
-		for(String ipAddress : portTable.keySet()){
+		closedPortBuffer.append("\nThe following ports are CLOSED:\n");
+
+		for (String ipAddress : portTable.keySet()) {
 			openPortBuffer.append(ipAddress + " - ");
-			closedPortBuffer.append(ipAddress + " - ");			
-			for(Port currentPort : portTable.get(ipAddress)){
-				if(currentPort.getStatus().equals("OPEN")){
+			closedPortBuffer.append(ipAddress + " - ");
+			for (Port currentPort : portTable.get(ipAddress)) {
+				if (currentPort.getStatus().equals("OPEN")) {
 					openPortBuffer.append(currentPort.getPort() + ", ");
 				} else {
 					closedPortBuffer.append(currentPort.getPort() + ", ");
 				}
 			}
-			openPortBuffer.deleteCharAt(openPortBuffer.length()-2);			
+			openPortBuffer.deleteCharAt(openPortBuffer.length() - 2);
 			openPortBuffer.append("\n");
-			closedPortBuffer.deleteCharAt(closedPortBuffer.length()-2);
-			closedPortBuffer.append("\n");	
+			closedPortBuffer.deleteCharAt(closedPortBuffer.length() - 2);
+			closedPortBuffer.append("\n");
 		}
 		logger.println(openPortBuffer.toString());
 		logger.println(closedPortBuffer.toString());
