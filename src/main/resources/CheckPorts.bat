@@ -1,0 +1,1 @@
+java -jar PortChecker-1.0.jar -i ports.csv -o port_log.txt
