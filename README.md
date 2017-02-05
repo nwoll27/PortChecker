@@ -3,6 +3,11 @@ PortChecker
 
 A simple multi-threaded TCP Port Checker utility. Accepts a .csv or a set of args containing a list of IP's and TCP ports and attempts to open a new socket in each
 
+ simple run  
+````java
+java -jar PortChecker-1.0.jar ports.csv
+````
+
 Releases:
 <ul>
 <li>Branch 0.1 is the first working version; it takes the input from the CSV and outputs everything to the console and logfile.</li>
