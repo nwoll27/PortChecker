@@ -1,7 +1,5 @@
 package portchecker.util;
 
-import java.io.*;
-
 public class Logger {
 	private File outputFile;
 	private BufferedWriter bufferedWriter;

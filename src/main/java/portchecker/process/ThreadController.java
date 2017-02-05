@@ -4,7 +4,6 @@ import portchecker.util.Port;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.*;
 
 /**
  * The thread controller manages the portTable object and the assignment of work
